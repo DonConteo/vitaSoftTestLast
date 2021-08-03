@@ -4,17 +4,21 @@ import dmitriy.tsoy.russia.vitaSoftTest.model.Role;
 import dmitriy.tsoy.russia.vitaSoftTest.model.User;
 import dmitriy.tsoy.russia.vitaSoftTest.repository.RoleRepo;
 import dmitriy.tsoy.russia.vitaSoftTest.repository.UserRepo;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
+  @Autowired
   UserRepo userRepo;
+  @Autowired
   RoleRepo roleRepo;
 
   public Optional<User> getUserById(long id) {
@@ -36,7 +40,7 @@ public class UserService {
     }
     if(role.equals("user")) {
       if (user.get().getRoles().contains(roleRepo.getById(2L))) {
-        roleRepo.updateOperatorToUser(id);
+        roleRepo.updateOperatorToUser(id, 2L);
         return "User is just USER now";
       }
       return "User is already just USER";
@@ -44,17 +48,8 @@ public class UserService {
     return "User status has been left without changes";
   }
 
-
-
-
-//      }
-//      user.getRoles().add(roleRepo.getById(2L));
-//      userRepo.updateUserRole(id, user.getRoles());
-//    }
-//  }
-
-  //    @Override
-  //    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-  //        return (UserDetails) userRepo.findByUsername(username);
-  //    }
+      @Override
+      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+          return userRepo.findByUsername(username);
+      }
 }

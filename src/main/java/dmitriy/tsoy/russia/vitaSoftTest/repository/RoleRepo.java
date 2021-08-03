@@ -9,8 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Repository
 public interface RoleRepo extends JpaRepository<Role, Long> {
+
+    Optional<Role> findByRoleName(String roleName);
 
     @Modifying
     @Transactional
@@ -19,6 +23,6 @@ public interface RoleRepo extends JpaRepository<Role, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE * FROM usr_roles WHERE user_id = :id, roles_id = 2", nativeQuery = true)
-    void updateOperatorToUser(@Param("id") long id);
+    @Query(value = "DELETE FROM usr_roles WHERE user_id = :id AND roles_id = :role_id", nativeQuery = true)
+    void updateOperatorToUser(@Param("id") long id, @Param("role_id") long roleId);
 }

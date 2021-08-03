@@ -12,9 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface ApplicationRepo extends JpaRepository<Application, Long> {
 
-  @Modifying
   @Transactional
-  @Query(value = "select * from application where user_id =:id order by date", nativeQuery = true)
+  @Query(value = "select * from application where user_id = :id order by date", nativeQuery = true)
   List<Application> getApplicationsForUser(@Param("id") long id);
 
   @Modifying

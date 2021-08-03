@@ -3,15 +3,20 @@ package dmitriy.tsoy.russia.vitaSoftTest.controller;
 import dmitriy.tsoy.russia.vitaSoftTest.model.User;
 import dmitriy.tsoy.russia.vitaSoftTest.service.UserService;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("user")
+//@PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {
 
-  private static final UserService userService = new UserService();
+  @Autowired
+  UserService userService;
 
   @GetMapping()
   public ResponseEntity<List<User>> getAllUsers() {

@@ -6,12 +6,16 @@ import dmitriy.tsoy.russia.vitaSoftTest.repository.UserRepo;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ApplicationService {
 
+  @Autowired
   ApplicationRepo applicationRepo;
+  @Autowired
   UserRepo userRepo;
 
   public Optional<Application> getApplicationById(long id) {
@@ -26,19 +30,23 @@ public class ApplicationService {
     return applicationRepo.getSentApplications();
   }
 
-  public void createApplication(long id, Application application) {
+  public void createApplication(long id, String text) {
+    Application application = new Application();
     applicationRepo.save(
         application.setStatus("draft")
             .setUser(userRepo.getById(id))
-            .setDate(LocalDate.now()));
+            .setDate(LocalDate.now()))
+            .setText(text);
   }
 
+  // for USER
   public void updateApplication(long id, String text, String status) {
     if (status.equals(""))
       status = applicationRepo.getById(id).getStatus();
     applicationRepo.updateApplication(id, text, status);
   }
 
+  // for OPERATOR
   public void updateApplicationStatus(long id, String status) {
     if (status.equals(""))
       status = applicationRepo.getById(id).getStatus();
