@@ -2,6 +2,8 @@ package dmitriy.tsoy.russia.vitaSoftTest.repository;
 
 import dmitriy.tsoy.russia.vitaSoftTest.model.Application;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,24 +15,32 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ApplicationRepo extends JpaRepository<Application, Long> {
 
   @Transactional
-  @Query(value = "select * from application where user_id = :id order by date", nativeQuery = true)
+  @Query(value = "SELECT * FROM application WHERE user_id = :id ORDER BY date", nativeQuery = true)
   List<Application> getApplicationsForUser(@Param("id") long id);
+
+  @Transactional
+  @Query(value = "SELECT * FROM application WHERE id = :appId AND user_id = :user_id", nativeQuery = true)
+  Optional<Application> findApplicationForUserById(@Param("user_id") long id,
+                                                   @Param("appId") long appId);
 
   @Modifying
   @Transactional
-  @Query(value = "update application set text = :text, status = :status where id = :id", nativeQuery = true)
+  @Query(value = "UPDATE application SET text = :text, status = :status WHERE id = :id", nativeQuery = true)
   void updateApplication(@Param("id") long id,
                          @Param("text") String text,
                          @Param("status") String status);
 
-  @Modifying
   @Transactional
-  @Query(value = "select * from application where status ilike 'sent' order by date", nativeQuery = true)
+  @Query(value = "SELECT * FROM application WHERE status ILIKE 'sent' ORDER BY date", nativeQuery = true)
   List<Application> getSentApplications();
 
   @Modifying
   @Transactional
-  @Query(value = "update application set status = :status where id = :id", nativeQuery = true)
+  @Query(value = "UPDATE application SET status = :status WHERE id = :id", nativeQuery = true)
   void updateApplicationStatus(@Param("id") long id,
                                @Param("status") String status);
+
+  @Transactional
+  @Query(value = "SELECT * FROM application WHERE id = :id AND status ILIKE 'sent' ORDER BY date", nativeQuery = true)
+  Application getSentApplicationById(@Param("id") long id);
 }

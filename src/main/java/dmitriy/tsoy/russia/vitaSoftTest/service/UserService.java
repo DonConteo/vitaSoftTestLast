@@ -31,14 +31,14 @@ public class UserService implements UserDetailsService {
 
   public String changeUserStatus(long id, String role) {
     Optional<User> user = userRepo.findById(id);
-    if(role.equals("operator")) {
+    if(role.equalsIgnoreCase("operator")) {
       if(user.get().getRoles().contains(roleRepo.getById(2L))) {
         return "User is already OPERATOR";
       } else
         roleRepo.updateUserToOperator(id);
         return "User has OPERATOR's rights now";
     }
-    if(role.equals("user")) {
+    if(role.equalsIgnoreCase("user")) {
       if (user.get().getRoles().contains(roleRepo.getById(2L))) {
         roleRepo.updateOperatorToUser(id, 2L);
         return "User is just USER now";
@@ -48,8 +48,12 @@ public class UserService implements UserDetailsService {
     return "User status has been left without changes";
   }
 
-      @Override
-      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-          return userRepo.findByUsername(username);
-      }
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    User user = userRepo.findByUsername(username);
+    if (user == null) {
+      throw new UsernameNotFoundException("User not found");
+    }
+    return user;
+  }
 }

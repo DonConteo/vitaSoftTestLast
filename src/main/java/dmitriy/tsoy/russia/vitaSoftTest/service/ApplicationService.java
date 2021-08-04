@@ -1,9 +1,11 @@
 package dmitriy.tsoy.russia.vitaSoftTest.service;
 
+import dmitriy.tsoy.russia.vitaSoftTest.dto.ApplicationDto;
 import dmitriy.tsoy.russia.vitaSoftTest.model.Application;
 import dmitriy.tsoy.russia.vitaSoftTest.repository.ApplicationRepo;
 import dmitriy.tsoy.russia.vitaSoftTest.repository.UserRepo;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,28 +24,36 @@ public class ApplicationService {
     return applicationRepo.findById(id);
   }
 
-  public List<Application> getApplicationsForUser(long id) {
-    return applicationRepo.getApplicationsForUser(id);
+  public Optional<Application> getUserApplicationById(long id, long appId) {
+    return applicationRepo.findApplicationForUserById(id, appId);
   }
 
-  public List<Application> getSentApplications() {
-    return applicationRepo.getSentApplications();
-  }
-
-  public void createApplication(long id, String text) {
-    Application application = new Application();
+  public void createApplication(long id, Application app) {
     applicationRepo.save(
-        application.setStatus("draft")
+        app.setStatus("draft")
             .setUser(userRepo.getById(id))
-            .setDate(LocalDate.now()))
-            .setText(text);
+            .setDate(LocalDate.now()));
   }
 
   // for USER
-  public void updateApplication(long id, String text, String status) {
+  public List<ApplicationDto> getApplicationsForUser(long id) {
+    List<Application> applications = applicationRepo.getApplicationsForUser(id);
+    List<ApplicationDto> list = new ArrayList<>();
+    for(Application application : applications) {
+      ApplicationDto applicationDto = new ApplicationDto();
+      applicationDto.setId(application.getId())
+              .setStatus(application.getStatus())
+              .setText(application.getText())
+              .setDate(application.getDate());
+      list.add(applicationDto);
+    }
+    return list;
+  }
+
+  public void updateApplication(long id, Application app, String status) {
     if (status.equals(""))
       status = applicationRepo.getById(id).getStatus();
-    applicationRepo.updateApplication(id, text, status);
+    applicationRepo.updateApplication(id, app.getText(), status);
   }
 
   // for OPERATOR
@@ -51,5 +61,39 @@ public class ApplicationService {
     if (status.equals(""))
       status = applicationRepo.getById(id).getStatus();
     applicationRepo.updateApplicationStatus(id, status);
+  }
+
+  public List<ApplicationDto> getSentApplications() {
+    List<Application> applications = applicationRepo.getSentApplications();
+    List<ApplicationDto> list = new ArrayList<>();
+    for(Application app : applications) {
+      String appText = app.getText();
+      StringBuilder outputText = new StringBuilder();
+      for(char c : appText.toCharArray()) {
+        outputText.append(c).append("-");
+      }
+      ApplicationDto applicationDto = new ApplicationDto();
+      applicationDto.setId(app.getId())
+              .setStatus(app.getStatus())
+              .setDate(app.getDate())
+              .setText(outputText.toString());
+      list.add(applicationDto);
+    }
+    return list;
+  }
+
+  public ApplicationDto getSentApplicationById(long id) {
+    Application app = applicationRepo.getSentApplicationById(id);
+    ApplicationDto applicationDto = new ApplicationDto();
+    String appText = app.getText();
+    StringBuilder outputText = new StringBuilder();
+    for(char c : appText.toCharArray()) {
+      outputText.append(c).append("-");
+    }
+    applicationDto.setId(app.getId())
+            .setStatus(app.getStatus())
+            .setDate(app.getDate())
+            .setText(outputText.toString());
+    return applicationDto;
   }
 }

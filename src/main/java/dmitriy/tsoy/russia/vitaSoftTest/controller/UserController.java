@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("user")
-//@PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {
 
   @Autowired

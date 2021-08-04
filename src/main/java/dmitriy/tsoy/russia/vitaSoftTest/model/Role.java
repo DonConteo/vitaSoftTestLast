@@ -11,18 +11,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Role {
+public class Role implements GrantedAuthority {
 
   @Id
   long id;
   String roleName;
-
   @Transient
   @ManyToMany(mappedBy = "roles")
   @ToString.Exclude
@@ -38,5 +38,10 @@ public class Role {
   @Override
   public int hashCode() {
     return 1179619963;
+  }
+
+  @Override
+  public String getAuthority() {
+    return getRoleName();
   }
 }

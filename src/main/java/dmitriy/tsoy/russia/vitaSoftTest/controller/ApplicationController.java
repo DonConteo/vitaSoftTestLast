@@ -1,5 +1,6 @@
 package dmitriy.tsoy.russia.vitaSoftTest.controller;
 
+import dmitriy.tsoy.russia.vitaSoftTest.dto.ApplicationDto;
 import dmitriy.tsoy.russia.vitaSoftTest.model.Application;
 import dmitriy.tsoy.russia.vitaSoftTest.model.User;
 import dmitriy.tsoy.russia.vitaSoftTest.service.ApplicationService;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("application")
 public class ApplicationController {
 
   @Autowired
@@ -21,65 +21,64 @@ public class ApplicationController {
   @Autowired
   UserService userService;
 
-      @GetMapping()
+      @GetMapping("application")
       public ResponseEntity getApplicationsForUser(@AuthenticationPrincipal User user) {
-          List<Application> applications = applicationService.getApplicationsForUser(user.getId());
+          List<ApplicationDto> applications = applicationService.getApplicationsForUser(user.getId());
           return applications.isEmpty()
                   ? new ResponseEntity<>("There is no applications", HttpStatus.NOT_FOUND)
                   : new ResponseEntity<>(applications, HttpStatus.OK);
       }
 
-      @PostMapping()
+      @PostMapping("application")
       public ResponseEntity<String> createApplication(@AuthenticationPrincipal User user,
-                                                       @RequestBody String text) {
-          applicationService.createApplication(user.getId(), text);
+                                                       @RequestBody Application app) {
+          applicationService.createApplication(user.getId(), app);
           return new ResponseEntity<>("Application successfully added", HttpStatus.CREATED);
       }
 
-    @GetMapping("{appId}")
+    @GetMapping("application/{appId}")
     public ResponseEntity getApplicationById(@AuthenticationPrincipal User user,
                                               @PathVariable(value="appId") long appId) {
-        return applicationService.getApplicationById(appId).isPresent()
-                ? new ResponseEntity<>(applicationService.getApplicationById(appId), HttpStatus.OK)
+        return applicationService.getUserApplicationById(user.getId(), appId).isPresent()
+                ? new ResponseEntity<>(applicationService.getUserApplicationById(user.getId(), appId), HttpStatus.OK)
                 : new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     // for USER
-    @PutMapping("{appId}")
+    @PutMapping("application/{appId}")
     public ResponseEntity<String> updateApplication(@AuthenticationPrincipal User user,
                                                     @PathVariable(value="appId") long appId,
                                                     @RequestParam(value="status", required = false, defaultValue = "") String status,
-                                                    @RequestBody String text) {
-        if (applicationService.getApplicationById(appId).isPresent()) {
-            applicationService.updateApplication(appId, text, status);
-            return applicationService.getApplicationById(appId).get().getText().equals(text)
+                                                    @RequestBody Application app) {
+        if (applicationService.getUserApplicationById(user.getId(), appId).isPresent()) {
+            applicationService.updateApplication(appId, app, status);
+            return applicationService.getApplicationById(appId).get().getText().equals(app.getText())
                     ? new ResponseEntity<>("Application successfully updated", HttpStatus.OK)
                     : new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    // for OPERATOR
     @GetMapping("sentApplication")
-    public ResponseEntity getSentApplications(@AuthenticationPrincipal User user) {
-        List<Application> applications = applicationService.getSentApplications();
+    public ResponseEntity getSentApplications() {
+        List<ApplicationDto> applications = applicationService.getSentApplications();
         return applications.isEmpty()
                 ? new ResponseEntity<>("There is no applications", HttpStatus.NOT_FOUND)
                 : new ResponseEntity<>(applications, HttpStatus.OK);
     }
 
     @GetMapping("sentApplication/{appId}")
-    public ResponseEntity getApplicationForOperator(@AuthenticationPrincipal User user,
-                                                  @PathVariable(value="appId") long appId) {
-        return applicationService.getApplicationById(appId).isPresent()
-                ? new ResponseEntity<>(applicationService.getApplicationById(appId), HttpStatus.OK)
+    public ResponseEntity getApplicationForOperator(@PathVariable(value="appId") long appId) {
+        return applicationService.getSentApplicationById(appId) != null
+                ? new ResponseEntity<>(applicationService.getSentApplicationById(appId), HttpStatus.OK)
                 : new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("sentApplication/{appId}")
-    public ResponseEntity updateApplicationStatus(@AuthenticationPrincipal User user,
-                                                  @PathVariable(value="appId") long appId,
+    public ResponseEntity updateApplicationStatus(@PathVariable(value="appId") long appId,
                                                   @RequestParam(value="status", required = false, defaultValue = "") String status) {
-        if (applicationService.getApplicationById(appId).isPresent()) {
+        if (applicationService.getSentApplicationById(appId) != null) {
             if (!applicationService.getApplicationById(appId).get().getStatus().equals("sent")) {
                 return new ResponseEntity<>("You can't see this application", HttpStatus.EXPECTATION_FAILED);
             }

@@ -1,7 +1,6 @@
 package dmitriy.tsoy.russia.vitaSoftTest.repository;
 
 import dmitriy.tsoy.russia.vitaSoftTest.model.Role;
-import dmitriy.tsoy.russia.vitaSoftTest.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
