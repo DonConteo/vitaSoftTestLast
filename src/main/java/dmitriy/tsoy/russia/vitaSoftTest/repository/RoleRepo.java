@@ -17,11 +17,11 @@ public interface RoleRepo extends JpaRepository<Role, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO usr_roles (user_id, roles_id) VALUES (:id, 2)", nativeQuery = true)
-    void updateUserToOperator(@Param("id") long id);
+    @Query(value = "INSERT INTO usr_roles (user_id, roles_id) VALUES (:id, :role_id)", nativeQuery = true)
+    void giveRole(@Param("id") long id, @Param("role_id") long roleId);
 
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM usr_roles WHERE user_id = :id AND roles_id = :role_id", nativeQuery = true)
-    void updateOperatorToUser(@Param("id") long id, @Param("role_id") long roleId);
+    void takeAwayRole(@Param("id") long id, @Param("role_id") long roleId);
 }

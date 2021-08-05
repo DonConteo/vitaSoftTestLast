@@ -3,6 +3,7 @@ package dmitriy.tsoy.russia.vitaSoftTest.controller;
 import dmitriy.tsoy.russia.vitaSoftTest.model.User;
 import dmitriy.tsoy.russia.vitaSoftTest.service.UserService;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,15 @@ public class UserController {
   @PutMapping("{id}")
   public ResponseEntity changeUserStatus(@PathVariable(value="id") long id,
                                          @RequestParam(value="role", required = false, defaultValue = "") String role) {
-    return new ResponseEntity(userService.changeUserStatus(id, role), HttpStatus.OK);
+    if(role.equalsIgnoreCase("user") ||
+            role.equalsIgnoreCase("operator") ||
+            role.equalsIgnoreCase("admin") ||
+            role.equalsIgnoreCase("demoteUser") ||
+            role.equalsIgnoreCase("demoteOperator") ||
+            role.equalsIgnoreCase("demoteAdmin") ||
+            role.equalsIgnoreCase("")) {
+      return new ResponseEntity(userService.changeUserStatus(id, role.toLowerCase(Locale.ROOT)), HttpStatus.OK);
+    }
+    return new ResponseEntity("Select the right ROLE or leave role empty", HttpStatus.EXPECTATION_FAILED);
   }
 }

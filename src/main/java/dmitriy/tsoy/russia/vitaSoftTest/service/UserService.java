@@ -1,6 +1,5 @@
 package dmitriy.tsoy.russia.vitaSoftTest.service;
 
-import dmitriy.tsoy.russia.vitaSoftTest.model.Role;
 import dmitriy.tsoy.russia.vitaSoftTest.model.User;
 import dmitriy.tsoy.russia.vitaSoftTest.repository.RoleRepo;
 import dmitriy.tsoy.russia.vitaSoftTest.repository.UserRepo;
@@ -31,19 +30,43 @@ public class UserService implements UserDetailsService {
 
   public String changeUserStatus(long id, String role) {
     Optional<User> user = userRepo.findById(id);
-    if(role.equalsIgnoreCase("operator")) {
-      if(user.get().getRoles().contains(roleRepo.getById(2L))) {
-        return "User is already OPERATOR";
-      } else
-        roleRepo.updateUserToOperator(id);
+    switch (role) {
+      case ("user"):
+        if(user.get().getRoles().contains(roleRepo.getById(1L))) {
+          return "User is already USER";
+        }
+        roleRepo.giveRole(id, 1);
+        return "User has USER's rights now";
+      case ("operator"):
+        if(user.get().getRoles().contains(roleRepo.getById(2L))) {
+          return "User is already OPERATOR";
+        }
+        roleRepo.giveRole(id, 2);
         return "User has OPERATOR's rights now";
-    }
-    if(role.equalsIgnoreCase("user")) {
-      if (user.get().getRoles().contains(roleRepo.getById(2L))) {
-        roleRepo.updateOperatorToUser(id, 2L);
-        return "User is just USER now";
-      }
-      return "User is already just USER";
+      case ("admin"):
+        if(user.get().getRoles().contains(roleRepo.getById(3L))) {
+          return "User is already ADMIN";
+        }
+        roleRepo.giveRole(id, 3);
+        return "User has ADMIN's rights now";
+      case ("demoteuser"):
+        if (user.get().getRoles().contains(roleRepo.getById(1L))) {
+          roleRepo.takeAwayRole(id, 1);
+          return "USER demoted";
+        }
+        return "User don't has this ROLE";
+      case ("demoteoperator"):
+        if (user.get().getRoles().contains(roleRepo.getById(2L))) {
+          roleRepo.takeAwayRole(id, 2);
+          return "OPERATOR demoted";
+        }
+        return "User don't has this ROLE";
+      case ("demoteadmin"):
+        if (user.get().getRoles().contains(roleRepo.getById(3L))) {
+          roleRepo.takeAwayRole(id, 3);
+          return "ADMIN demoted";
+        }
+        return "User don't has this ROLE";
     }
     return "User status has been left without changes";
   }
