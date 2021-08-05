@@ -29,7 +29,6 @@ public class Application {
   String text;
   String status;
   LocalDate date;
-
   @ManyToOne(fetch = EAGER)
   User user;
 

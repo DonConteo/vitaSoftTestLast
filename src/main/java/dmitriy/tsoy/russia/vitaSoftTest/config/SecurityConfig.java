@@ -38,6 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new PasswordEncoderCrutch();
     }
 
+    // заглушка на кодировщик паролей, чтобы не ругался и нормально читал пароли из базы
+    // (в базу всю информацию по пользователям и ролям вносил руками,
+    // поскольку в задании указано, что создавать их приложение не должно)
     class PasswordEncoderCrutch implements PasswordEncoder {
 
         @Override

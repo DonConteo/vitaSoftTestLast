@@ -30,21 +30,20 @@ public class ApplicationService {
 
   public void createApplication(long id, Application app) {
     applicationRepo.save(
-        app.setStatus("draft")
-            .setUser(userRepo.getById(id))
-            .setDate(LocalDate.now()));
+      app.setStatus("draft")
+          .setUser(userRepo.getById(id))
+          .setDate(LocalDate.now()));
   }
 
-  // for USER
   public List<ApplicationDto> getApplicationsForUser(long id) {
     List<Application> applications = applicationRepo.getApplicationsForUser(id);
     List<ApplicationDto> list = new ArrayList<>();
     for(Application application : applications) {
-      ApplicationDto applicationDto = new ApplicationDto();
-      applicationDto.setId(application.getId())
-              .setStatus(application.getStatus())
-              .setText(application.getText())
-              .setDate(application.getDate());
+      ApplicationDto applicationDto = ApplicationDto.newBuilder()
+              .id(application.getId())
+              .text(application.getText())
+              .status(application.getStatus())
+              .date(application.getDate()).build();
       list.add(applicationDto);
     }
     return list;
@@ -56,7 +55,6 @@ public class ApplicationService {
     applicationRepo.updateApplication(id, app.getText(), status);
   }
 
-  // for OPERATOR
   public void updateApplicationStatus(long id, String status) {
     if (status.equals(""))
       status = applicationRepo.getById(id).getStatus();
@@ -72,11 +70,11 @@ public class ApplicationService {
       for(char c : appText.toCharArray()) {
         outputText.append(c).append("-");
       }
-      ApplicationDto applicationDto = new ApplicationDto();
-      applicationDto.setId(app.getId())
-              .setStatus(app.getStatus())
-              .setDate(app.getDate())
-              .setText(outputText.toString());
+      ApplicationDto applicationDto = ApplicationDto.newBuilder()
+              .id(app.getId())
+              .text(outputText.toString())
+              .status(app.getStatus())
+              .date(app.getDate()).build();
       list.add(applicationDto);
     }
     return list;
@@ -84,16 +82,15 @@ public class ApplicationService {
 
   public ApplicationDto getSentApplicationById(long id) {
     Application app = applicationRepo.getSentApplicationById(id);
-    ApplicationDto applicationDto = new ApplicationDto();
     String appText = app.getText();
     StringBuilder outputText = new StringBuilder();
     for(char c : appText.toCharArray()) {
       outputText.append(c).append("-");
     }
-    applicationDto.setId(app.getId())
-            .setStatus(app.getStatus())
-            .setDate(app.getDate())
-            .setText(outputText.toString());
-    return applicationDto;
+    return ApplicationDto.newBuilder()
+            .id(app.getId())
+            .text(outputText.toString())
+            .status(app.getStatus())
+            .date(app.getDate()).build();
   }
 }
